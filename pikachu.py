@@ -3,17 +3,17 @@ import pygame
 
 class Pikachu:
 
-    CHANGE_WALKING_FRAME_CUTOFF = 300
+    SPRITE_FRAME_DURATION = 300
 
     def __init__(self):
         self.direction = Direction.Down
         self.x = 0
         self.y = 0
-        self.speed = 6
+        self.speed = 0.01
         self.walking_frame_index = 0
         self.spriteSheet = "sprites/pikachu.png"
         self.loadSprites(self.spriteSheet)
-        self.last_update_time = 0
+        self.sprite_frame_delta = 0
         self.sprite = self.update(0)
 
     def loadSprites(self,spriteSheetPath):
@@ -37,9 +37,9 @@ class Pikachu:
         return frame
 
     def update(self, ticks, movingDirection=None):
-        delta_ticks = ticks - self.last_update_time
+        self.sprite_frame_delta += ticks
         if movingDirection == None:
-            self.last_update_time = ticks
+            self.sprite_frame_delta = 0
             if self.direction == Direction.Left:
                 self.sprite = self.idle_left
             elif self.direction == Direction.Right:
@@ -50,7 +50,7 @@ class Pikachu:
                 self.sprite = self.idle_down
         else:
             if movingDirection != self.direction:
-                self.last_update_time = ticks
+                self.sprite_frame_delta = 0
                 self.direction = movingDirection
                 if self.direction == Direction.Left:
                     self.sprite = self.idle_left
@@ -60,18 +60,19 @@ class Pikachu:
                     self.sprite = self.idle_up
                 else:
                     self.sprite = self.idle_down
-            if delta_ticks > CHANGE_WALKING_FRAME_CUTOFF:
-                self.last_update_time = ticks
-                self.walking_frame_index = (self.walking_frame_index + 1) % 2
-            if self.direction == Direction.Left:
-                self.x -= self.speed * delta_ticks
-                self.sprite = self.walk_left[self.walking_frame_index]
-            elif self.direction == Direction.Right:
-                self.x += self.speed * delta_ticks
-                self.sprite = self.walk_right[self.walking_frame_index]
-            elif self.direction == Direction.Up:
-                self.y -= self.speed * delta_ticks
-                self.sprite = self.walk_up[self.walking_frame_index]
             else:
-                self.y += self.speed * delta_ticks
-                self.sprite = self.walk_down[self.walking_frame_index]
+                if self.direction == Direction.Left:
+                    self.x -= self.speed * self.sprite_frame_delta
+                    self.sprite = self.walk_left[self.walking_frame_index]
+                elif self.direction == Direction.Right:
+                    self.x += self.speed * self.sprite_frame_delta
+                    self.sprite = self.walk_right[self.walking_frame_index]
+                elif self.direction == Direction.Up:
+                    self.y -= self.speed * self.sprite_frame_delta
+                    self.sprite = self.walk_up[self.walking_frame_index]
+                else:
+                    self.y += self.speed * self.sprite_frame_delta
+                    self.sprite = self.walk_down[self.walking_frame_index]
+                if self.sprite_frame_delta > self.SPRITE_FRAME_DURATION:
+                    self.sprite_frame_delta = 0
+                    self.walking_frame_index = (self.walking_frame_index + 1) % 2

@@ -1,3 +1,4 @@
+from direction import Direction
 import pygame, sys
 from pygame.locals import *
 import time
@@ -53,12 +54,14 @@ while True:
             except Exception as e:
                 continue
     
+    # tick the clock
+    dt = mainClock.tick(FPS)
+    
     # redraw everything
     windowSurface.fill(WHITE)
-    player.update(mainClock.get_ticks(), playerInput[0] if len(playerInput) > 0 else None);
+    player.update(dt, playerInput[0] if len(playerInput) > 0 else None);
     windowSurface.blit(player.sprite, (player.x, player.y))
     
     # update your window
     pygame.display.update()
     
-    mainClock.tick(FPS)
