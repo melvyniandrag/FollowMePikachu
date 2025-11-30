@@ -16,7 +16,7 @@ BLACK = (0, 0, 0)
 pygame.init()
 mainClock = pygame.time.Clock()
 FPS = 60
-windowSurface = pygame.display.set_mode((WINDOWWIDTH, WINDOWHEIGHT))
+windowSurface = pygame.display.set_mode((WINDOWWIDTH, WINDOWHEIGHT), pygame.SCALED)
 pygame.display.set_caption('pikachu!')
 
 # Players 
