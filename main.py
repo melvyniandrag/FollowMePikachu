@@ -24,20 +24,41 @@ pygame.display.set_caption('pikachu!')
 player = Pikachu()
 
 #main loop
+playerInput = []
 while True:
-      # listen for events
-      for event in pygame.event.get():
-            if event.type == QUIT:
-                  pygame.quit()
-                  sys.exit()
-
-      # Do some math
-
-      # redraw everything
-      windowSurface.fill(WHITE)
-      windowSurface.blit(player.sprite, (player.x, player.y))
-
-      # update your window
-      pygame.display.update()
-      
-      mainClock.tick(FPS)
+    # listen for events
+    for event in pygame.event.get():
+        if event.type == QUIT:
+            pygame.quit()
+            sys.exit()
+        if event.type == KEYDOWN:
+            if event.key == K_a:
+                playerInput.append(Direction.Left)
+            if event.key == K_w:
+                playerInput.append(Direction.Up)
+            if event.key == K_s:
+                playerInput.append(Direction.Down)
+            if event.key == K_d:
+                playerInput.append(Direction.Right)
+        if event.type == KEYUP:
+            try:
+                if event.key == K_a:
+                    playerInput.remove(Direction.Left)
+                if event.key == K_w:
+                    playerInput.remove(Direction.Up)
+                if event.key == K_s:
+                    playerInput.remove(Direction.Down)
+                if event.key == K_d:
+                    playerInput.remove(Direction.Right)
+            except Exception as e:
+                continue
+    
+    # redraw everything
+    windowSurface.fill(WHITE)
+    player.update(mainClock.get_ticks(), playerInput[0] if len(playerInput) > 0 else None);
+    windowSurface.blit(player.sprite, (player.x, player.y))
+    
+    # update your window
+    pygame.display.update()
+    
+    mainClock.tick(FPS)
