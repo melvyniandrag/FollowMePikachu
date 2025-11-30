@@ -2,15 +2,19 @@ from direction import Direction
 import pygame
 
 class Pikachu:
-    def __init__(self,):
+
+    CHANGE_WALKING_FRAME_CUTOFF = 300
+
+    def __init__(self):
         self.direction = Direction.Down
-        self.moving = False
-        self.frame_index = 0
         self.x = 0
         self.y = 0
+        self.speed = 6
+        self.walking_frame_index = 0
         self.spriteSheet = "sprites/pikachu.png"
         self.loadSprites(self.spriteSheet)
-        self.sprite = self.getSprite(self.direction, self.moving)
+        self.last_update_time = 0
+        self.sprite = self.getSprite(0)
 
     def loadSprites(self,spriteSheetPath):
         spriteSheet = pygame.image.load(spriteSheetPath).convert_alpha()
@@ -32,8 +36,42 @@ class Pikachu:
         frame.blit(sheet, (0,0),(0, row*height, width, height))
         return frame
 
-    def getSprite(self, direction, moving):
-        if not moving:
-            return self.idle_down
+    def getSprite(self, ticks, movingDirection=None):
+        delta_ticks = ticks - self.last_update_time
+        if movingDirection == None:
+            self.last_update_time = ticks
+            if self.direction == Direction.Left:
+                return self.idle_left
+            elif self.direction == Direction.Right:
+                return self.idle_right
+            elif self.direction == Direction.Up:
+                return self.idle_up
+            else:
+                return self.idle_down
         else:
-            return self.walk_down[0]
+            if movingDirection != self.direction:
+                self.last_update_time = ticks
+                self.direction = movingDirection
+                if self.direction == Direction.Left:
+                    return self.idle_left
+                elif self.direction == Direction.Right:
+                    return self.idle_right
+                elif self.direction == Direction.Up:
+                    return self.idle_up
+                else:
+                    return self.idle_down
+            if delta_ticks > CHANGE_WALKING_FRAME_CUTOFF:
+                self.last_update_time = ticks
+                self.walking_frame_index = (self.walking_frame_index + 1) % 2
+            if self.direction == Direction.Left:
+                self.x -= self.speed * delta_ticks
+                return self.walk_left[self.walking_frame_index]
+            elif self.direction == Direction.Right:
+                self.x += self.speed * delta_ticks
+                return self.walk_right[self.walking_frame_index]
+            elif self.direction == Direction.Up:
+                self.y -= self.speed * delta_ticks
+                return self.walk_up[self.walking_frame_index]
+            else:
+                self.y += self.speed * delta_ticks
+                return self.walk_down[self.walking_frame_index]

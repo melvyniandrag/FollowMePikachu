@@ -13,6 +13,8 @@ WHITE = (255, 255, 255)
 BLACK = (0, 0, 0)
 
 pygame.init()
+mainClock = pygame.time.Clock()
+FPS = 60
 windowSurface = pygame.display.set_mode((WINDOWWIDTH, WINDOWHEIGHT))
 pygame.display.set_caption('pikachu!')
 
@@ -37,3 +39,5 @@ while True:
 
       # update your window
       pygame.display.update()
+      
+      mainClock.tick(FPS)
