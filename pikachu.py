@@ -3,13 +3,14 @@ import pygame
 
 class Pikachu:
 
-    SPRITE_FRAME_DURATION = 300
+    SPRITE_FRAME_DURATION = 150
 
     def __init__(self):
         self.direction = Direction.Down
         self.x = 0
         self.y = 0
         self.speed = 0.01
+        self.isMoving = False
         self.walking_frame_index = 0
         self.spriteSheet = "sprites/pikachu.png"
         self.loadSprites(self.spriteSheet)
@@ -39,6 +40,7 @@ class Pikachu:
     def update(self, ticks, movingDirection=None):
         self.sprite_frame_delta += ticks
         if movingDirection == None:
+            self.isMoving = False;
             self.sprite_frame_delta = 0
             if self.direction == Direction.Left:
                 self.sprite = self.idle_left
@@ -49,30 +51,22 @@ class Pikachu:
             else:
                 self.sprite = self.idle_down
         else:
-            if movingDirection != self.direction:
-                self.sprite_frame_delta = 0
-                self.direction = movingDirection
-                if self.direction == Direction.Left:
-                    self.sprite = self.idle_left
-                elif self.direction == Direction.Right:
-                    self.sprite = self.idle_right
-                elif self.direction == Direction.Up:
-                    self.sprite = self.idle_up
-                else:
-                    self.sprite = self.idle_down
+            if not self.isMoving:
+                self.walking_frame_index = 0
+            self.isMoving = True
+            self.direction = movingDirection
+            if self.direction == Direction.Left:
+                self.x -= self.speed * self.sprite_frame_delta
+                self.sprite = self.walk_left[self.walking_frame_index]
+            elif self.direction == Direction.Right:
+                self.x += self.speed * self.sprite_frame_delta
+                self.sprite = self.walk_right[self.walking_frame_index]
+            elif self.direction == Direction.Up:
+                self.y -= self.speed * self.sprite_frame_delta
+                self.sprite = self.walk_up[self.walking_frame_index]
             else:
-                if self.direction == Direction.Left:
-                    self.x -= self.speed * self.sprite_frame_delta
-                    self.sprite = self.walk_left[self.walking_frame_index]
-                elif self.direction == Direction.Right:
-                    self.x += self.speed * self.sprite_frame_delta
-                    self.sprite = self.walk_right[self.walking_frame_index]
-                elif self.direction == Direction.Up:
-                    self.y -= self.speed * self.sprite_frame_delta
-                    self.sprite = self.walk_up[self.walking_frame_index]
-                else:
-                    self.y += self.speed * self.sprite_frame_delta
-                    self.sprite = self.walk_down[self.walking_frame_index]
-                if self.sprite_frame_delta > self.SPRITE_FRAME_DURATION:
-                    self.sprite_frame_delta = 0
-                    self.walking_frame_index = (self.walking_frame_index + 1) % 2
+                self.y += self.speed * self.sprite_frame_delta
+                self.sprite = self.walk_down[self.walking_frame_index]
+            if self.sprite_frame_delta > self.SPRITE_FRAME_DURATION:
+                self.sprite_frame_delta = 0
+                self.walking_frame_index = (self.walking_frame_index + 1) % 2
